@@ -1,0 +1,55 @@
+import numpy as np
+import pandas as pd
+import xlsxwriter
+from pathlib import Path
+import pyautogui 
+import matplotlib.pyplot as plt
+import matplotlib as mpl
+import openpyxl
+from xlsxwriter.utility import xl_range
+
+mpl.rcParams['font.family'] = 'Malgun Gothic' # '맑은 고딕'으로 폰트 설정 
+mpl.rcParams['axes.unicode_minus'] = False # 마이너스(-) 폰트 깨짐 방지
+%matplotlib inline
+
+
+불량_file = 'C:\\Users\\200129-17\\Desktop\\불량CPF.xls'
+생산량_file = 'C:\\Users\\200129-17\\Desktop\\생산량CPF.xls'
+CPF생산_불량_file = 'C:\\Users\\200129-17\\Desktop\\CPF_생산_불량.xlsx'
+
+
+df = pd.read_excel(불량_file, index=False)
+df= df[["작업일자","주야구분","품번","품명","규격","불량유형","실적량",'합금\r\n환산량']]
+df["주야구분"]=0
+df["품명"]=0
+불량 = pd.pivot_table(df, index=["작업일자","주야구분","품번","품명","규격","불량유형"],
+                               values=["실적량",'합금\r\n환산량'],
+                               aggfunc="sum")
+
+ddf = pd.read_excel(생산량_file, index=False)
+ddf= ddf[["작업일자","생산설비","품번","품명","규격","공정흐름유형","주야구분","실적량",'합금\r\n환산량']]
+ddf["주야구분"]=0
+생산량 = pd.pivot_table(ddf, index=["작업일자","생산설비","품번","품명","규격","공정흐름유형","주야구분"],
+                               values=["실적량",'합금\r\n환산량'],
+                               aggfunc="sum")
+
+
+불량 = 불량.reset_index()
+생산량 = 생산량.reset_index()
+
+with pd.ExcelWriter(CPF생산_불량_file, engine="xlsxwriter") as excel_writer :
+    불량.to_excel(excel_writer, sheet_name="불량",index=False)
+    생산량.to_excel(excel_writer, sheet_name="생산량",index=False)
+    workbook = excel_writer.book
+    cell_format = workbook.add_format({"align":"center",
+                                       "valign":"center",
+                                      "font_color": "blue"})
+    
+    cell_format.set_border(1)
+    
+    불량_worksheet = excel_writer.sheets["불량"]
+    생산량_worksheet = excel_writer.sheets["생산량"]
+
+    불량_worksheet.set_column(0,5,15, cell_format)
+    생산량_worksheet.set_column(0,5,15, cell_format)
+    

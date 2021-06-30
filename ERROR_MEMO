@@ -1,0 +1,43 @@
+import numpy as np
+import pandas as pd
+import xlsxwriter
+from pathlib import Path
+import xlsxwriter
+from datetime import datetime 
+
+folder = 'C:\\Users\\200129-17\\Desktop\\'
+excel_file = folder + '일일불량기록장.xlsx'
+
+
+workbook = xlsxwriter.Workbook(excel_file) 
+
+worksheet = workbook.add_worksheet("IC합") 
+worksheet1 = workbook.add_worksheet("저압합") 
+
+writer_value = ["불량발생장소","품번","불량유형","불량수","LOT", "비고","세부사항"]
+
+
+cell_format1 = workbook.add_format({'align': 'center', 'valign': 'vcenter'})
+cell_format2 = workbook.add_format({'align': 'center', 'valign': 'vcenter'})
+
+cell_format1.set_bg_color('lime')   # 셀의 배경을 설정(색 이름 지정: 라임색)
+cell_format1.set_border(1)
+cell_format2.set_bg_color('blue')    # 셀의 배경을 설정(색 이름 지정: 파란색)
+cell_format2.set_font_color('white')
+
+
+for col, word in enumerate(writer_value):
+    worksheet.write(0,col,word,cell_format1)
+    worksheet.set_column(0, 6, 15)
+    worksheet1.write(0,col,word,cell_format2)
+    worksheet1.set_column(0, 6, 15)
+    
+    
+workbook.close()
+
+
+
+a = datetime.now()
+today = str(a.year)+"_"+str(a.month)+"_"+str(a.day)+"_"+str(a.hour)
+
+print("생성한 엑셀 파일:", excel_file+today) # 생성한 파일 이름 출력
